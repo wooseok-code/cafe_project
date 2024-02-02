@@ -18,9 +18,8 @@ def restaurant_page_down():
     while(1):
         first_restaurant_list = driver.find_elements(By.CLASS_NAME, 'UEzoS')
         print('들어옴')
-        time.sleep(2)
         action.move_to_element(first_restaurant_list[-1]).perform()
-        time.sleep(2)
+        time.sleep(0.5)
         last_restaurant_list = driver.find_elements(By.CLASS_NAME, 'UEzoS')
         print('들어옴1')
         if first_restaurant_list == last_restaurant_list:
