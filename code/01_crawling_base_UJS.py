@@ -5,6 +5,7 @@ from selenium.webdriver.chrome.options import Options
 import random
 from selenium.webdriver.common.action_chains import ActionChains
 
+
 # 마우스를 menu 요소 중앙으로 이동한 뒤 hidden_submenu 요소를 클릭하는 것을 실행
 
 
@@ -13,7 +14,21 @@ import random
 import time
 import pandas as pd
 
-
+def restaurant_page_down():
+    while(1):
+        first_restaurant_list = driver.find_elements(By.CLASS_NAME, 'UEzoS')
+        print('들어옴')
+        time.sleep(2)
+        action.move_to_element(first_restaurant_list[-1]).perform()
+        time.sleep(2)
+        last_restaurant_list = driver.find_elements(By.CLASS_NAME, 'UEzoS')
+        print('들어옴1')
+        if first_restaurant_list == last_restaurant_list:
+            return 0
+        else:
+            print('page down')
+            continue
+        print('들어옴2')
 def scroll():
     try:
         # 페이지 내 스크롤 높이 받아오기
@@ -21,9 +36,9 @@ def scroll():
         while True:
             # 임의의 페이지 로딩 시간 설정
             # PC환경에 따라 로딩시간 최적화를 통해 scraping 시간 단축 가능
-            pause_time = random.uniform(0.,0.7)
+            pause_time = random.uniform(0.5,0.7)
             # 페이지 최하단까지 스크롤
-            driver.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
+            action.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
             # 페이지 로딩 대기
             time.sleep(pause_time)
             # 무한 스크롤 동작을 위해 살짝 위로 스크롤(i.e., 페이지를 위로 올렸다가 내리는 제스쳐)
@@ -50,12 +65,17 @@ key_count = 0
 user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 options.add_argument('User-Agent=' + user_agent)
 options.add_argument('lang=ko_KR')
+options.add_argument("disable-infobars")
+options.add_argument("--disable-extensions")
+#prefs = {'profile.default_content_setting_values': {'cookies' : 2, 'images': 2, 'plugins' : 2, 'popups': 2, 'geolocation': 2, 'notifications' : 2, 'auto_select_certificate': 2, 'fullscreen' : 2, 'mouselock' : 2, 'mixed_script': 2, 'media_stream' : 2, 'media_stream_mic' : 2, 'media_stream_camera': 2, 'protocol_handlers' : 2, 'ppapi_broker' : 2, 'automatic_downloads': 2, 'midi_sysex' : 2, 'push_messaging' : 2, 'ssl_cert_decisions': 2, 'metro_switch_to_desktop' : 2, 'protected_media_identifier': 2, 'app_banner': 2, 'site_engagement' : 2, 'durable_storage' : 2}}
+#options.add_experimental_option('prefs', prefs)
 
 # options.add_argument('headless')
 # options.add_argument('window-size=1920x1080')
 # options.add_argument("disable-gpu")
 
-driver = wb.Chrome(options=options)
+
+
 
 options.add_argument('--start-maximized')
 
@@ -72,15 +92,30 @@ for list in search_list:
         exit(1)
     iframe_element = driver.find_element(By.ID, "searchIframe")
     driver.switch_to.frame(iframe_element)
-    time.sleep(0.5)
-    res_list = driver.find_elements(By.CLASS_NAME,'UEzoS')
+    time.sleep(2)
 
+    action = ActionChains(driver)
 
     reviews = []
     res_names=[]
 
+    restaurant_page_down()
+    # page_num=0
+    # for i in range(100):
+    #     driver.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
+    #     time.sleep(0.2)
+    #
+    #     try:
+    #         sample = driver.find_elements(By.CLASS_NAME, 'mBN2s')
+    #     except:
+    #         continue
+    # for i in sample:
+    #     print(i.text)
 
+    res_list = driver.find_elements(By.CLASS_NAME, 'UEzoS')
     for list in res_list:   #식당명 가져와서 리뷰 가져오는 부분
+
+
 
         res_name = list.find_element(By.CLASS_NAME,'TYaxT').text
         res_names.append(res_name)    #음식점명 저장
@@ -148,37 +183,7 @@ for list in search_list:
 
 
 
-        # time.sleep(2)
-        # sample =
-        # driver.execute_script("arguments[0].click();", sample)
-        # time.sleep(2)
-        # scroll()
 
-
-
-
-
-
-    #
-    #
-    # scroll()
-    # movies=driver.find_elements(By.CLASS_NAME,"MovieItem")
-    # print(len(movies))
-    #
-    # title_list=[]
-    # href_list=[]
-    # element_list=[]
-    #
-    #
-    # time.sleep(2)
-    #
-    # for movie in movies: #영화리스트를 가져와서 해당 리스트의 영화제목  및 리뷰를 가져올 링크를 저장.
-    #
-    #     item = movie.find_element(By.TAG_NAME,'a')
-    #     title = item.get_attribute('title')
-    #     href  = item.get_attribute('href') + '/reviews'
-    #     title_list.append(title)
-    #     href_list.append(href)
     # df = pd.DataFrame({'titles':title_list,'href':href_list})
     # df.to_csv('./data/movie_href_data.csv',index=False)
     #
