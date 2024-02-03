@@ -32,9 +32,11 @@ def scroll_down_restaurant(num):
         time.sleep(0.8)
         last_restaurant_list = driver.find_elements(By.CLASS_NAME, 'UEzoS')
         if len(last_restaurant_list) > num:
+            action.move_to_element(last_restaurant_list[-1]).perform()
             print('\rPage Down END:', len(first_restaurant_list), '/', len(last_restaurant_list), end="")
             return
         elif first_restaurant_list == last_restaurant_list:
+            action.move_to_element(last_restaurant_list[-1]).perform()
             print('\rPage Down END:', len(first_restaurant_list), '/', len(last_restaurant_list), end="")
             return
         else:
@@ -111,7 +113,7 @@ for location in locations[location_num:]:
             except Exception as e:
                 print('Error Code:', e)
 
-            time.sleep(4)
+            time.sleep(5)
 
             # 프레임 변경
             driver.switch_to.default_content()  # 프레임 초기화
