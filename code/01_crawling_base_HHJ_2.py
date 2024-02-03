@@ -13,29 +13,32 @@ from selenium.webdriver import ActionChains
 from selenium.common.exceptions import NoSuchElementException
 
 #함수선언
-def set_restaurant_page(num):
+def set_restaurant_page(num, page):
     selected_page_num = int(driver.find_element(By.CLASS_NAME, 'mBN2s.qxokY').text)
-    print('\n★PAGE SETTING START★')
+    print('★PAGE SETTING START★')
     while(selected_page_num != num):
         print('PAGE SETTING    :', selected_page_num, '/', num)
         driver.find_elements(By.CLASS_NAME, 'eUTV2')[1].click()
         time.sleep(1)
         selected_page_num = int(driver.find_element(By.CLASS_NAME, 'mBN2s.qxokY').text)
     print('PAGE SETTING END:', selected_page_num, '/', num)
-    scroll_down_restaurant()
+    scroll_down_restaurant(page)
 
-def scroll_down_restaurant():
+def scroll_down_restaurant(num):
     print('\n★SCROLL DOWN START★')
     while (1):
         first_restaurant_list = driver.find_elements(By.CLASS_NAME, 'UEzoS')
         action.move_to_element(first_restaurant_list[-1]).perform()
         time.sleep(0.8)
         last_restaurant_list = driver.find_elements(By.CLASS_NAME, 'UEzoS')
-        if first_restaurant_list == last_restaurant_list:
-            print('Page Down END:', len(first_restaurant_list), '/', len(last_restaurant_list))
+        if len(last_restaurant_list) > num:
+            print('\rPage Down END:', len(first_restaurant_list), '/', len(last_restaurant_list), end="")
+            return
+        elif first_restaurant_list == last_restaurant_list:
+            print('\rPage Down END:', len(first_restaurant_list), '/', len(last_restaurant_list), end="")
             return
         else:
-            print('Page Down    :', len(first_restaurant_list), '/', len(last_restaurant_list))
+            print('\rPage Down    :', len(first_restaurant_list), '/', len(last_restaurant_list), end="")
             continue
 
 #검색어
@@ -71,7 +74,9 @@ options.add_argument('--blink-setting=imagesEnable=false') #이미지 미로딩
 for location in locations[location_num:]:
     for i in range(page_num, 7):
         for j in range(restaurant_num, 50):
-            print('▶Target = {} / {} / {}'.format(location, i, j))
+            print('\n\n----------------------------------------')
+            print(' ▶ Target = {} / {} / {}'.format(location, i, j))
+            print('----------------------------------------')
             # 식당별 저장 변수
             df = pd.DataFrame()
             names = []
@@ -88,30 +93,32 @@ for location in locations[location_num:]:
             time.sleep(5)
 
             # 프레임 변경
-            print('★Frame Change Search★')
             driver.switch_to.default_content()  # 프레임 초기화
             driver.switch_to.frame('searchIframe')  # 프레임 변경
 
             #페이지 설정
-            set_restaurant_page(i)
+            set_restaurant_page(i, j)
 
             #타겟 엘리멘트 설정
             target = driver.find_elements(By.CLASS_NAME, 'TYaxT')[j]
             names.append(target.text)
 
             #타겟 클릭
-            print('★Target Click★')
-            print('▶Target = {} / {} / {}'.format(location, i, j))
-            target.click()
-            time.sleep(3)
+            print('\n\n★Target Click★')
+            try:
+                target.click()
+                print('Clicked Success')
+            except Exception as e:
+                print('Error Code:', e)
+
+            time.sleep(4)
 
             # 프레임 변경
-            print('★Frame Change entry★')
             driver.switch_to.default_content()  # 프레임 초기화
             driver.switch_to.frame('entryIframe')  # 프레임 변경
 
             # 리뷰 보기 버튼
-            print('★Review More Click★')
+            print('\n★Review More Click★')
             btn_lists = driver.find_elements(By.CLASS_NAME, 'veBoZ')
             for btn_list in btn_lists:
                 if btn_list.text == '리뷰':
@@ -125,16 +132,19 @@ for location in locations[location_num:]:
             while (1):
                 review_count = len(driver.find_elements(By.CLASS_NAME, 'zPfVt'))
                 try:
-                    print('Review Crawling Loading: [',
+                    print('\rReview Crawling Loading: [',
                           int((review_count / count_all) * 100), '% ] [',
-                          review_count, '/', count_all, ']')
+                          review_count, '/', count_all, ']', end="")
                     driver.find_element(By.CLASS_NAME, 'E4qxG').click()
                     time.sleep(1)
                 except NoSuchElementException:
-                    print('Review Crawling Loading: [ 100 % ]')
+                    print('\rReview Crawling Loading: [ 100 % ]', end="")
                     break
                 except:
-                    print('Reviews More BTN Error')
+                    print('\rReviews More BTN Error')
+
+                if review_count > 1500:
+                    break
 
             # 리뷰 출력
             review = ''
@@ -144,14 +154,18 @@ for location in locations[location_num:]:
                     review = review + ' ' + re.compile('[^가-힣]').sub(' ', review_list.text)
                 except:
                     pass
-            print('Review Crawling End: ', len(review))
+            print('\nReview Crawling End: ', len(review))
             reviews.append(review)
 
             #CSV 저장
             df['names'] = names
             df['reviews'] = reviews
-            df.to_csv('../data_naver/naver_data_{}_{}_{}_HHJ.csv'.format(location, i, j),
-                      index=False)
+            try:
+                df.to_csv('../data_naver/naver_data_{}_{}_{}_HHJ.csv'.format(location, i, j),
+                          index=False)
+                print('\n★DataFrame To CSV Success★')
+            except Exception as e:
+                print('Error Code:', e)
 
             #드라이버 종료
             driver.close()
