@@ -43,7 +43,7 @@ locations = ['교하동', '금촌동', '동패동', '문발동', '서패동', '�
 
 #변수선언
 location_num = 0
-page_num = 0
+page_num = 1
 restaurant_num = 0
 
 #저장된 데이터 선별 데이터 불러오기
@@ -58,7 +58,6 @@ for location in locations:
                 location_num = locations.index(location)
                 page_num = i
                 restaurant_num = j+1
-
 print('▶Last Save Data = {} / {} / {}'.format(location_num, page_num, restaurant_num))
 
 #크롤링 변수 선언
@@ -106,7 +105,6 @@ for location in locations[location_num:]:
             target.click()
             time.sleep(3)
 
-
             # 프레임 변경
             print('★Frame Change entry★')
             driver.switch_to.default_content()  # 프레임 초기화
@@ -149,13 +147,16 @@ for location in locations[location_num:]:
             print('Review Crawling End: ', len(review))
             reviews.append(review)
 
+            #CSV 저장
             df['names'] = names
             df['reviews'] = reviews
             df.to_csv('../data_naver/naver_data_{}_{}_{}_HHJ.csv'.format(location, i, j),
                       index=False)
 
+            #드라이버 종료
             driver.close()
             driver.quit()
 
+        #변수 초기화
         restaurant_num = 0
-    page_num = 0
+    page_num = 1
