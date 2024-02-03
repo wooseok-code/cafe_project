@@ -1,3 +1,8 @@
+# end of memory error
+# end of memory error
+# end of memory error
+# end of memory error
+
 #선언
 import time
 import re
@@ -96,7 +101,7 @@ for location in locations:
             for btn_list in btn_lists:
                 if btn_list.text == '리뷰':
                     btn_list.click()
-            time.sleep(3)
+            time.sleep(5)
 
             review_count_all = driver.find_element(By.CLASS_NAME, 'place_section_count')
             count_all = int(re.compile('[^0-9]').sub('', review_count_all.text))
@@ -114,7 +119,7 @@ for location in locations:
                     break
                 except:
                     print('Reviews More BTN Error')
-                if review_count > 10:
+                if review_count > 50:
                     break
 
             # 리뷰 출력
