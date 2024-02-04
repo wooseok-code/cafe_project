@@ -59,7 +59,7 @@ while(1):
 
         #저장된 데이터 선별
         for location in locations:
-            for i in range(6):
+            for i in range(7):
                 for j in range(50):
                     if '../data_naver\\naver_data_{}_{}_{}_HHJ.csv'.format(location, i, j) in data_paths:
                         location_num = locations.index(location)
@@ -94,7 +94,7 @@ while(1):
 
                     # 웹페이지 OPEN
                     driver.get(url)
-                    time.sleep(5)
+                    time.sleep(4)
 
                     # 프레임 변경
                     driver.switch_to.default_content()  # 프레임 초기화
