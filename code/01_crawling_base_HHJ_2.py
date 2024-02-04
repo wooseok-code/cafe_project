@@ -24,27 +24,30 @@ def set_restaurant_page(num, page):
     print('PAGE SETTING END:', selected_page_num, '/', num)
     scroll_down_restaurant(page)
 
+    return
+
 def scroll_down_restaurant(num):
     print('\n★SCROLL DOWN START★')
+    time.sleep(1)
+    cnt = 0
     while (1):
-        first_restaurant_list = driver.find_elements(By.CLASS_NAME, 'UEzoS')
-        action.move_to_element(first_restaurant_list[-1]).perform()
-        time.sleep(0.8)
-        last_restaurant_list = driver.find_elements(By.CLASS_NAME, 'UEzoS')
-        if len(last_restaurant_list) > num:
-            action.move_to_element(last_restaurant_list[-1]).perform()
-            print('\rPage Down END:', len(first_restaurant_list), '/', len(last_restaurant_list), end="")
-            return
-        elif first_restaurant_list == last_restaurant_list:
-            action.move_to_element(last_restaurant_list[-1]).perform()
-            print('\rPage Down END:', len(first_restaurant_list), '/', len(last_restaurant_list), end="")
-            return
+        contents = driver.find_element(By.CLASS_NAME, 'Ryr1F')
+        restaurant_list = contents.find_elements(By.CLASS_NAME, 'UEzoS.rTjJo')
+        btn = restaurant_list[-1].find_element(By.CLASS_NAME, 'ngGKH')
+        action.move_to_element(btn).perform()
+        time.sleep(1)
+        if len(restaurant_list) >= num:
+            print('\rPage Down END:', cnt, '>', len(restaurant_list), end="")
+            break
         else:
-            print('\rPage Down    :', len(first_restaurant_list), '/', len(last_restaurant_list), end="")
+            print('\rPage Down    :', cnt, '>', len(restaurant_list), end="")
+            cnt = len(restaurant_list)
             continue
 
+    return
+
 #검색어
-locations = ['교하동', '금촌동', '동패동', '서패동', '야당동']
+locations = ['교하동', '금촌동', '일산서구', '일산동구']
 
 while(1):
     try:
@@ -90,11 +93,11 @@ while(1):
                     service = ChromeService(executable_path=ChromeDriverManager().install())
                     driver = webdriver.Chrome(service=service, options=options)
                     action = ActionChains(driver)
-                    url = 'https://map.naver.com/p/search/파주 {} 식당'.format(location)
+                    url = 'https://map.naver.com/p/search/{} 식당'.format(location)
 
                     # 웹페이지 OPEN
                     driver.get(url)
-                    time.sleep(4)
+                    time.sleep(5)
 
                     # 프레임 변경
                     driver.switch_to.default_content()  # 프레임 초기화
@@ -117,11 +120,12 @@ while(1):
                     except Exception as e:
                         print('Error Code:', e)
 
-                    time.sleep(5)
+                    time.sleep(3)
 
                     # 프레임 변경
                     driver.switch_to.default_content()  # 프레임 초기화
                     driver.switch_to.frame('entryIframe')  # 프레임 변경
+                    time.sleep(0.5)
 
                     # 리뷰 보기 버튼
                     print('\n★Review More Click★')
@@ -129,7 +133,7 @@ while(1):
                     for btn_list in btn_lists:
                         if btn_list.text == '리뷰':
                             btn_list.click()
-                    time.sleep(3)
+                    time.sleep(2)
 
                     review_count_all = driver.find_element(By.CLASS_NAME, 'place_section_count')
                     count_all = int(re.compile('[^0-9]').sub('', review_count_all.text))
@@ -150,7 +154,7 @@ while(1):
                         except:
                             print('\rReviews More BTN Error')
 
-                        if review_count > 1500:
+                        if review_count > 1000:
                             break
 
                     # 리뷰 출력
@@ -182,8 +186,8 @@ while(1):
                 restaurant_num = 0
             page_num = 1
 
-    except:
-        print('RETRY CODE')
+    except Exception as e:
+        print('RETRY CODE: ', e)
         try:
             driver.close()
             driver.quit()
