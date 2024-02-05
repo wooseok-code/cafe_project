@@ -12,6 +12,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver import ActionChains
 from selenium.common.exceptions import NoSuchElementException
 
+import pyautogui
+
+
 #함수선언
 def set_restaurant_page(num, page):
     selected_page_num = int(driver.find_element(By.CLASS_NAME, 'mBN2s.qxokY').text)
@@ -19,12 +22,59 @@ def set_restaurant_page(num, page):
     while(selected_page_num != num):
         print('PAGE SETTING    :', selected_page_num, '/', num)
         driver.find_elements(By.CLASS_NAME, 'eUTV2')[1].click()
-        time.sleep(1)
+        time.sleep(0.2)
         selected_page_num = int(driver.find_element(By.CLASS_NAME, 'mBN2s.qxokY').text)
     print('PAGE SETTING END:', selected_page_num, '/', num)
     scroll_down_restaurant(page)
 
     return
+# review_more_xpath = '//*[@id="_pcmap_list_scroll_container"]/ul/li[1]'
+
+review_more_xpath = '//*[@id="_pcmap_list_scroll_container"]/ul/li[1]/div[1]/div/div/span[2]'
+# def scroll_down_restaurant(num):
+#     print('\n★SCROLL DOWN START★')
+#     time.sleep(1)
+#     cnt = 0
+#     while (1):
+#         review_more = driver.find_element(By.XPATH, review_more_xpath)
+#         driver.execute_script('arguments[0].click();', review_more)
+#
+#         action.move_to_element(review_more).perform()
+#         time.sleep(1)
+#         pyautogui.keyDown('pgdn')
+#         pyautogui.keyUp('pgdn')
+#
+#
+#         contents = driver.find_element(By.CLASS_NAME, 'Ryr1F')
+#         restaurant_list = contents.find_elements(By.CLASS_NAME, 'UEzoS.rTjJo')
+#         # btn = restaurant_list[-1].find_element(By.CLASS_NAME, 'ngGKH')
+#         # btn = restaurant_list[-1].find_element(By.CLASS_NAME, 'GBHq5')
+#         # action.move_to_element(btn).perform()
+#
+#         time.sleep(1)
+#         if len(restaurant_list) >= num:
+#             print('\rPage Down END:', cnt, '>', len(restaurant_list), end="")
+#             break
+#         else:
+#             print('\rPage Down    :', cnt, '>', len(restaurant_list), end="")
+#             cnt = len(restaurant_list)
+#             continue
+#
+#         # contents = driver.find_element(By.CLASS_NAME, 'Ryr1F')
+#         # restaurant_list = contents.find_elements(By.CLASS_NAME, 'UEzoS.rTjJo')
+#         # # btn = restaurant_list[-1].find_element(By.CLASS_NAME, 'ngGKH')
+#         # btn = restaurant_list[-1].find_element(By.CLASS_NAME, 'GBHq5')
+#         # action.move_to_element(btn).perform()
+#         # time.sleep(1)
+#         # if len(restaurant_list) >= num:
+#         #     print('\rPage Down END:', cnt, '>', len(restaurant_list), end="")
+#         #     break
+#         # else:
+#         #     print('\rPage Down    :', cnt, '>', len(restaurant_list), end="")
+#         #     cnt = len(restaurant_list)
+#         #     continue
+#
+#     return
 
 def scroll_down_restaurant(num):
     print('\n★SCROLL DOWN START★')
@@ -33,10 +83,16 @@ def scroll_down_restaurant(num):
     while (1):
         contents = driver.find_element(By.CLASS_NAME, 'Ryr1F')
         restaurant_list = contents.find_elements(By.CLASS_NAME, 'UEzoS.rTjJo')
-        btn = restaurant_list[-1].find_element(By.CLASS_NAME, 'ngGKH')
-        action.move_to_element(btn).perform()
-        time.sleep(1)
-        if len(restaurant_list) >= num:
+        btn = restaurant_list[-1].find_element(By.CLASS_NAME, 'h69bs')
+        btn.click()
+        time.sleep(1.5)
+        # action.move_to_element(btn).perform()
+        for i in range(6):
+            pyautogui.keyDown('pgdn')
+            pyautogui.keyUp('pgdn')
+            time.sleep(0.4)
+        # action.move_to_element(restaurant_list[1]).perform()
+        if len(restaurant_list) > num:
             print('\rPage Down END:', cnt, '>', len(restaurant_list), end="")
             break
         else:
@@ -47,7 +103,8 @@ def scroll_down_restaurant(num):
     return
 
 #검색어
-locations = ['교하동', '금촌동', '일산서구', '일산동구']
+# locations = ['인계동', '행궁동' ,'신동', '정자동']
+locations = ['인사동', '혜화동' ,'명동', '돈암동','회기동']
 
 while(1):
     try:
@@ -57,14 +114,14 @@ while(1):
         restaurant_num = 0
 
         #저장된 데이터 선별 데이터 불러오기
-        data_paths = glob.glob('../data_naver/naver*HHJ.csv')
+        data_paths = glob.glob('../data_naver/naver*.csv')
         print(data_paths)
 
         #저장된 데이터 선별
         for location in locations:
-            for i in range(7):
+            for i in range(3):
                 for j in range(50):
-                    if '../data_naver\\naver_data_{}_{}_{}_HHJ.csv'.format(location, i, j) in data_paths:
+                    if '../data_naver\\naver_data_{}_{}_{}_CAFE.csv'.format(location, i, j) in data_paths:
                         location_num = locations.index(location)
                         page_num = i
                         restaurant_num = j+1
@@ -75,11 +132,17 @@ while(1):
         user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
         options.add_argument('user_agent=' + user_agent)
         options.add_argument('lang=ko_KR')
+        options.add_argument('window-size=1920*1080')
+        options.add_argument('--start-maximized')
         options.add_argument('--blink-setting=imagesEnable=false') #이미지 미로딩
+
+        # SELENIUM_PROFILE_PATH = r"C:\Users\OMG\AppData\Local\Google\Chrome\User Data\Selenium Profile"
+        # options.add_argument(rf"--user-data-dir={SELENIUM_PROFILE_PATH}")
 
         #크롤링 시작
         for location in locations[location_num:]:
-            for i in range(page_num, 7):
+            for i in range(page_num, 3):
+                # for j in range(21, 50):
                 for j in range(restaurant_num, 50):
                     print('\n\n----------------------------------------')
                     print(' ▶ Target = {} / {} / {}'.format(location, i, j))
@@ -93,11 +156,12 @@ while(1):
                     service = ChromeService(executable_path=ChromeDriverManager().install())
                     driver = webdriver.Chrome(service=service, options=options)
                     action = ActionChains(driver)
-                    url = 'https://map.naver.com/p/search/{} 식당'.format(location)
+                    url = 'https://map.naver.com/p/search/{} 카페'.format(location)
 
                     # 웹페이지 OPEN
                     driver.get(url)
                     time.sleep(5)
+                    # driver.minimize_window()
 
                     # 프레임 변경
                     driver.switch_to.default_content()  # 프레임 초기화
@@ -154,7 +218,7 @@ while(1):
                         except:
                             print('\rReviews More BTN Error')
 
-                        if review_count > 1000:
+                        if review_count > 100:
                             break
 
                     # 리뷰 출력
@@ -172,7 +236,7 @@ while(1):
                     df['names'] = names
                     df['reviews'] = reviews
                     try:
-                        df.to_csv('../data_naver/naver_data_{}_{}_{}_HHJ.csv'.format(location, i, j),
+                        df.to_csv('../data_naver/naver_data_{}_{}_{}_CAFE.csv'.format(location, i, j),
                                   index=False)
                         print('\n★DataFrame To CSV Success★')
                     except Exception as e:

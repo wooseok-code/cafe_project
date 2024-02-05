@@ -52,7 +52,7 @@ def restaurant_next_page():
 all_time = 0
 
 #리스트
-locations = ['교하동', '금촌동', '동패동', '문발동', '서패동', '야당동']
+locations = ['신동', '인계동', '행궁동', '정자동']
 
 #검색
 for location in locations:
@@ -60,7 +60,7 @@ for location in locations:
     service = ChromeService(executable_path=ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
     action = ActionChains(driver)
-    url = 'https://map.naver.com/p/search/파주 {} 식당'.format(location)
+    url = 'https://map.naver.com/p/search/수원 {} 까페'.format(location)
     driver.get(url)
     time.sleep(5)
     pf = pd.DataFrame()
@@ -155,7 +155,7 @@ for location in locations:
 
     pf['names'] = names
     pf['reviews'] = reviews
-    pf.to_csv('../data_naver/{}_naver_data_{}_HHJ.csv'.format(location,datetime.datetime.now().strftime('%Y%m%d')),
+    pf.to_csv('../data_naver/{}_naver_data_{}_KWS.csv'.format(location,datetime.datetime.now().strftime('%Y%m%d')),
               index=False)
 
 #전체시간 출력
